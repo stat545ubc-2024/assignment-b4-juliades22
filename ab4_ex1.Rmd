@@ -1,0 +1,77 @@
+---
+title: "Ab4-Ex1"
+author: "Julia D"
+date: "2024-11-27"
+output: github_document
+---
+#Exercise 1
+## Jane Austen Book Analysis 
+This task will use the janeaustenr package to plot the most common words in the book, removing "stop words" such as a, an, and, the. 
+
+#### Downloading the source material & necessary packages
+```{r}
+library(janeaustenr)
+library(tidyverse)
+library(stringr)
+library(purrr)
+library(stopwords)
+```
+
+Determining strategy/ objectives: 
+1. Unstring all the words so that they can be scanned through
+2. Excise all stopwords
+3. Count all re-occuring words and #s of each word
+4. Plot the counts 
+
+#### Objective 1: Unstring sentances
+```{r}
+#Turn "senseandsensibility" into a dataset
+SandS <- data.frame(sensesensibility)
+typeof(SandS) 
+# Now I know this is a dataframe ("list") that has 1 column the sentance. 
+
+#I need the words of the sentence separated.
+words_ss <- separate_longer_delim(SandS, "sensesensibility", delim = " ")
+```
+
+#### Objective 2: Excise the stop words
+```{r}
+#Ran into issues with case down the line, so I am making sure that the stopwords are matched and removed regardless of case.
+stopwords_list <- tolower(stopwords("en"))
+
+filtered_SS <- words_ss %>%
+  mutate(sensesensibility = tolower(trimws(sensesensibility))) %>%
+  filter(!sensesensibility %in% stopwords_list) %>%
+  filter(sensesensibility != "I") %>%
+  filter(sensesensibility != "")
+
+
+print(filtered_SS)
+
+```
+#### Objective 3: Counts of the words
+```{r}
+word_counts <- filtered_SS %>%
+  count(sensesensibility, 
+        sort = TRUE) %>%
+  filter(n> 200)
+print(word_counts)
+
+```
+#### Objective 4: Graph the word use
+```{r} 
+#graph the most used words (top 12, >200 mentions)
+#Define catgories of words to colour by in graph: new column in tibble
+
+words_sorted <- word_counts %>%
+  mutate(categories = )
+
+Word_dist <- ggplot(word_counts) +
+  geom_col(aes(x = sensesensibility, y = n, fill= sensesensibility)) +
+  theme_light()
+
+print(Word_dist)
+
+```
+
+
