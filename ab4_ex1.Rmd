@@ -32,42 +32,45 @@ typeof(SandS)
 
 #I need the words of the sentence separated.
 words_ss <- separate_longer_delim(SandS, "sensesensibility", delim = " ")
+
 ```
 
-#### Objective 2: Excise the stop words
+#### Objective 2: Excise the stop words & punctuation
 ```{r}
-#Ran into issues with case down the line, so I am making sure that the stopwords are matched and removed regardless of case.
+#Ran into issues with case down the line, so I am making sure that the stopwords are matched and removed regardless of case. Also removing punctuation, "I" and blank rows.
 stopwords_list <- tolower(stopwords("en"))
 
 filtered_SS <- words_ss %>%
-  mutate(sensesensibility = tolower(trimws(sensesensibility))) %>%
-  filter(!sensesensibility %in% stopwords_list) %>%
-  filter(sensesensibility != "I") %>%
-  filter(sensesensibility != "")
+  mutate(sensesensibility = tolower(trimws(sensesensibility))) %>%  
+  mutate(sensesensibility = str_remove_all(sensesensibility, "[[:punct:]]")) %>%  
+  filter(!sensesensibility %in% stopwords_list) %>%  
+  filter(sensesensibility != "i") %>%  
+  filter(sensesensibility != "") 
+  
 
-
-print(filtered_SS)
+clean_data <- data.frame(word = unlist(filtered_SS))
+print(clean_data)
 
 ```
+
+
 #### Objective 3: Counts of the words
 ```{r}
-word_counts <- filtered_SS %>%
-  count(sensesensibility, 
+word_counts <- clean_data %>%
+  count(word, 
         sort = TRUE) %>%
-  filter(n> 200)
+  filter(n> 250)
 print(word_counts)
 
 ```
+
 #### Objective 4: Graph the word use
 ```{r} 
-#graph the most used words (top 12, >200 mentions)
+#graph the most used words (top 12, >250 mentions)
 #Define catgories of words to colour by in graph: new column in tibble
 
-words_sorted <- word_counts %>%
-  mutate(categories = )
-
 Word_dist <- ggplot(word_counts) +
-  geom_col(aes(x = sensesensibility, y = n, fill= sensesensibility)) +
+  geom_col(aes(x = word, y = n, fill= word)) +
   theme_light()
 
 print(Word_dist)

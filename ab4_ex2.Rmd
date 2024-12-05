@@ -4,4 +4,111 @@ author: "Julia D"
 date: "2024-12-04"
 output: github_document
 ---
+#### Downloading the source material & necessary packages
+```{r}
+library(janeaustenr)
+library(tidyverse)
+library(stringr)
+library(purrr)
+library(stopwords)
+library(testthat)
+library(devtools)
+```
 
+#### First I want to sort the words again(same as I did in ex1, except I dont remove stopwords)
+```{r}
+#Turn "senseandsensibility" into a dataset of words
+SandS <- data.frame(sensesensibility)
+
+words1 <- separate_longer_delim(SandS, "sensesensibility", delim = " ")
+
+ ex2_filtered<- words1 %>%
+  filter(sensesensibility != "") %>%
+  lapply(str_remove_all, "[[:punct:]]") 
+  
+
+
+print(ex2_filtered)
+
+clean_data2 <- data.frame(word = unlist(ex2_filtered))
+print(clean_data2)
+```
+
+#### Developing the PigLatin Function
+
+```{r}
+pig_latin_uh <- function(data) { 
+  if(!is.character(data)) {
+    stop('Sorry, this function requires character values')
+  }
+  data <- str_remove_all(data, "t")
+  first <- str_sub(data, 1,1)
+  rest <- str_sub(data, 2)
+  
+  str_c(rest, "uh", first)
+
+}
+
+
+```
+
+Documentation:
+```{r}
+#'@Title Pig_latin_uh
+#'@description
+#'This function turns a list of character values into my version of pig latin, by removing the letter 't', adding "uh" after the main word, and moving the first letter to the end of the word
+#'@param Data Data is the dataframe 
+#'@details This function will return an error for any non-character variables in the data param. This function makes texts incoherent.
+#'@returns This function returns a flattened string of the words transformed to pig latin.
+#'@examples pig_latin_uh(c("test", "elinor")),
+    c("suhe", "linoruhe")
+
+```
+
+#### Examples 
+Example 1
+```{r}
+#Filtering for the first 100 words of the first chapter
+data1 <- clean_data2 %>%
+  slice(8:108)
+
+unlist_data1 <- flatten_chr(data1)
+
+
+example1 <- pig_latin_uh(unlist_data1)
+print(example1)
+  
+```
+
+Example 2: 1st Sentence
+```{r}
+#Filter for the first sentence
+data2 <- clean_data2 %>%
+  slice(10:19)
+
+unlist_data2 <- flatten_chr(data2)
+
+example2 <- pig_latin_uh(unlist_data2) %>%
+  str_flatten(" ")
+
+print(example2)
+
+#To compare to the original:
+
+normal_sentence <- str_flatten(unlist_data2, " ")
+print(normal_sentence)
+
+```
+
+#### Tests 
+```{r}
+test_that("Testing pig_latin_uh function works", {
+  expect_type(pig_latin_uh, "closure")
+  expect_error(pig_latin_uh(123), 'Sorry, this function requires character values')
+  expect_equal(
+    pig_latin_uh(c("test", "elinor")),
+    c("suhe", "linoruhe")
+  )
+})
+
+```
